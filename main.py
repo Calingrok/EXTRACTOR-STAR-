@@ -559,3 +559,5 @@ def main():
     # Start the Bot
     print("🤖 Bot is running...")
     application.run_polling()
+if __name__ == '__main__':
+    main()
