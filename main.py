@@ -118,12 +118,12 @@ class SelectionWayBot:
             return False, f"Error: {str(e)}"
 
     async def login_user(self, email, password, user_id):
+        async def login_user(self, email, password, user_id):
         """Login to SelectionWay"""
         login_url = "https://selectionway.hranker.com/admin/api/user-login"
         
         login_headers = {
             "host": "selectionway.hranker.com",
-            "content-length": "106",
             **self.base_headers
         }
         
@@ -139,6 +139,11 @@ class SelectionWayBot:
         try:
             session = requests.Session()
             response = session.post(login_url, headers=login_headers, json=login_data)
+            
+            # यहाँ से पता चलेगा कि वेबसाइट क्या जवाब दे रही है
+            print(f"DEBUG: Status Code: {response.status_code}")
+            print(f"DEBUG: Response Text: {response.text}")
+            
             response.raise_for_status()
             
             login_response = response.json()
@@ -151,10 +156,11 @@ class SelectionWayBot:
                 self.user_sessions[user_id] = user_data
                 return True, "✅ Login successful!"
             else:
-                return False, "❌ Login failed: Invalid credentials"
+                return False, f"❌ Login failed: {login_response.get('message', 'Invalid credentials')}"
                 
         except Exception as e:
             return False, f"❌ Login error: {str(e)}"
+
 
     async def extract_course_data_without_login(self, course_id, course_name):
         """Extract course data without login"""
