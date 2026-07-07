@@ -23,8 +23,12 @@ import logging
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, MessageHandler, filters, ContextTypes
 
-# Bot Configuration
-os.getenv("BOT_TOKEN")
+# Bot Configuration - यहाँ सही तरीका यह है:
+BOT_TOKEN = os.getenv("BOT_TOKEN")
+
+if not BOT_TOKEN:
+    raise ValueError("No BOT_TOKEN found. Set it in Koyeb Environment Variables.")
+
 
 # Enable logging
 logging.basicConfig(
@@ -541,7 +545,10 @@ async def process_extraction_result(update, course_name, result):
         )
 
 def main():
-    """Start the bot"""
+    # Keep-alive server start karein
+    keep_alive()
+    
+    # application build karte waqt 'BOT_TOKEN' ka use karein
     application = Application.builder().token(BOT_TOKEN).build()
     
     # Add handlers
@@ -552,6 +559,3 @@ def main():
     # Start the Bot
     print("🤖 Bot is running...")
     application.run_polling()
-
-if __name__ == '__main__':
-    main()
