@@ -1,19 +1,22 @@
-import os
 from flask import Flask
 from threading import Thread
-# Flask server setup (Koyeb ke liye)
+import os
+
 app = Flask(__name__)
 
 @app.route('/')
 def home():
-    return "Bot is running!"
+    return "Bot is active!"
 
 def run():
+    # Koyeb 8080 पोर्ट पर ही रिक्वेस्ट भेजता है
     app.run(host='0.0.0.0', port=8080)
 
 def keep_alive():
     t = Thread(target=run)
+    t.daemon = True # Ye important hai
     t.start()
+    
 # main     
 import requests
 import logging
