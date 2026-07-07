@@ -7,7 +7,8 @@ from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, MessageHandler, filters, ContextTypes
 
 # Flask App for keep-alive
-app = Flask(name)
+app = Flask(__name__)
+
 
 @app.route('/')
 def home():
