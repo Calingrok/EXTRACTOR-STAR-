@@ -194,16 +194,59 @@ async def button_handler(update, context):
             await query.edit_message_text(msg, parse_mode='Markdown')
 
 async def handle_message(update, context):
+    user_id = update.message.from_user.id
     text = update.message.text
-    if context.user_data.get('awaiting_batch_selection'):
-        # Handle batch selection logic...
-        pass # (Add your existing batch selection logic here)
+    
+    if context.user_data.get('awaiting_login'):
+        if ":" in text:
+            email, password = text.split(":", 1)
+            await update.message.reply_text("🔄 Logging in...")
+            success, message = await bot.login_user(email.strip(), password.strip(), user_id)
+            if success:
+                context.user_data['awaiting_login'] = False
+                success, my_batches = await bot.get_my_batches(user_id)
+                if success:
+                    msg, b_list = bot.format_batches_list(my_batches, "my")
+                    context.user_data.update({'my_batches': b_list, 'awaiting_batch_selection': True})
+                    await update.message.reply_text(msg, parse_mode='Markdown')
+                else:
+                    await update.message.reply_text(f"✅ Login successful but {my_batches}")
+            else:
+                await update.message.reply_text(message)
+        else:
+            await update.message.reply_text("❌ Invalid format! Use `email:password`", parse_mode='Markdown')
+
+    elif context.user_data.get('awaiting_batch_selection'):
+        if text.isdigit():
+            idx = int(text) - 1
+            batch_list = context.user_data.get('my_batches', [])
+            if 0 <= idx < len(batch_list):
+                selected = batch_list[idx]
+                await update.message.reply_text(f"🔄 Extracting {selected['title']}...")
+                success, result = await bot.extract_course_data_with_login(user_id, selected['id'], selected['title'])
+                if success: await process_extraction_result(update, selected['title'], result)
+                else: await update.message.reply_text(f"❌ {result}")
+            else: await update.message.reply_text("❌ Invalid number")
+        else: await update.message.reply_text("❌ Please enter a valid number")
+
     elif context.user_data.get('awaiting_batch_id'):
-        # Handle ID logic
-        pass # (Add your logic here)
-    elif context.user_data.get('awaiting_login'):
-        # Handle login logic
-        pass # (Add your logic here)
+        # Batch ID input (Without Login)
+        course_name = "Unknown"
+        batch_list = context.user_data.get('all_batches', [])
+        for b in batch_list:
+            if b.get('id') == text.strip():
+                course_name = b.get('title')
+                break
+        await update.message.reply_text(f"🔄 Extracting {course_name}...")
+        success, result = await bot.extract_course_data_without_login(text.strip(), course_name)
+        if success: 
+            await process_extraction_result(update, course_name, result)
+        else: 
+            await update.message.reply_text(f"❌ {result}")
+            
+    else:
+        await update.message.reply_text("⚠️ No active action. Use /start to begin.")
+
 
 def main():
     keep_alive()
