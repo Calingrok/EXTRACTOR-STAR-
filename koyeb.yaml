@@ -12,5 +12,6 @@ app:
           protocol: http
       git:
         branch: main
-        build_command: python3 -m pip install -r requirements.txt
+        # Naya command change:
+        build_command: pip install -r requirements.txt
         run_command: python3 main.py
