@@ -23,7 +23,9 @@ def keep_alive():
     t.start()
 
 # Bot Configuration
-BOT_TOKEN = "8420197585:AAFMuzgaetEsUA9zo2FQlOKZlY2E5__gYMo"
+BOT_TOKEN = os.getenv("BOT_TOKEN")
+if not BOT_TOKEN:
+    raise ValueError("No BOT_TOKEN found. Set it in Koyeb Environment Variables.")
 
 # Enable logging
 logging.basicConfig(
