@@ -554,5 +554,28 @@ def main():
     print("🤖 Bot is running...")
     application.run_polling()
 
+import asyncio
+
+async def main():
+    # Flask को बैकग्राउंड में शुरू रखें
+    keep_alive()
+    
+    application = Application.builder().token(BOT_TOKEN).build()
+    
+    # Add handlers
+    application.add_handler(CommandHandler("start", start))
+    application.add_handler(CallbackQueryHandler(button_handler))
+    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+    
+    # Run polling
+    print("🤖 Bot is running...")
+    await application.initialize()
+    await application.start()
+    await application.updater.start_polling()
+    
+    # यह Flask को भी चलने देगा और बोट को भी
+    while True:
+        await asyncio.sleep(1)
+
 if __name__ == '__main__':
-    main()
+    asyncio.run(main())
